@@ -1,23 +1,51 @@
-window.onload = function (){
+window.onload = function () {
 
-
-    let lookup = document.getElementById('lookup');
+    let lookupCountryBtn = document.getElementById('lookup');
+    let lookupCitiesBtn = document.getElementById('lookup-cities');
     let search = document.getElementById('country');
     let result = document.getElementById('result');
 
-    lookup.addEventListener('click', async function () {
+    // Function to fetch data
+    async function fetchData(url) {
+        try {
+            let response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            let data = await response.text();
+            result.innerHTML = data;
+
+        } catch (error) {
+            result.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+            console.error("Fetch error:", error);
+        }
+    }
+
+    // Lookup countries
+    lookupCountryBtn.addEventListener('click', function () {
         let country = search.value.trim();
+        let url = 'http://localhost/info2180-lab5/world.php';
 
-        let url = 'http://localhost/info2180-lab5/world.php'
-
-        if (country !== ""){
+        if (country !== "") {
             url += "?country=" + encodeURIComponent(country);
         }
 
-        let countries = await fetch(url);
-        let resp = await countries.text();
-
-        result.innerHTML = resp;
-        
+        fetchData(url);
     });
-}
+
+    // Lookup cities
+    lookupCitiesBtn.addEventListener('click', function () {
+        let country = search.value.trim();
+        if (country === "") {
+            result.innerHTML = `<p style="color:red;">Please enter a country name first.</p>`;
+            return;
+        }
+
+        let url = `http://localhost/info2180-lab5/world.php?country=${encodeURIComponent(country)}&lookup=cities`;
+
+        fetchData(url);
+    });
+
+};
